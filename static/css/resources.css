@@ -11,7 +11,7 @@
 }
 
 .resource-box {
-    width: 48%; /* Set width to fit two boxes in a row */
+    width: 40ch; /* Set width to fit two boxes in a row */
     margin-bottom: 20px; /* Add margin to create space between rows */
     padding: 20px;
     border: 2px solid #007bff; /* Border color */
@@ -20,6 +20,7 @@
     text-align: center;
     transition: transform 0.3s ease; /* Smooth transition */
     box-sizing: border-box; /* Include padding in width calculation */
+    margin-right: 20px;
 }
 
 .resource-box:hover {

@@ -36,7 +36,8 @@ from flask_admin import AdminIndexView, Admin
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Length
-
+import os
+from database import app as db_app
 app = Flask(__name__, template_folder='template')
 
 # Configuration
@@ -165,8 +166,13 @@ def get_document():
     if not document:
         return jsonify({'error': 'Document not found'}), 404
 
+    file_path = os.path.join(db_app.config['UPLOAD_FOLDER'], document.document_filename)
+
+    if not os.path.exists(file_path):
+        return jsonify({'error': 'File not found'}), 404
+
     return send_file(
-        io.BytesIO(document.document),
+        file_path,
         mimetype='application/pdf',
         as_attachment=True,
         download_name=document.document_filename
