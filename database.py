@@ -27,7 +27,7 @@ app.config['UPLOAD_FOLDER'] = 'uploads'  # Temporary upload folder
 db = SQLAlchemy(app)
 
 # NOTE : This line help me for temporarily filefieldupload pdf stored and upl to db.
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+os.makedirs(app.config['UPLOAD_FOLDER'])
 
 # CONTACT MODEL
 class Contact(db.Model):
@@ -58,16 +58,6 @@ class Document(db.Model):
         return f"Document('{self.document_filename}', '{self.upl_date}', '{self.category.category}')"
    
 
-    def delete_file(self):
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], self.document_filename)
-        try:
-            if os.path.exists(file_path):
-                os.remove(file_path)
-                print(f"File '{self.document_filename}' deleted successfully.")
-            else:
-                print(f"File '{self.document_filename}' does not exist.")
-        except Exception as e:
-            print(f"Error deleting file '{self.document_filename}': {str(e)}")
 
 
 # PAGE INFORMATION MODEL
@@ -106,52 +96,16 @@ class ProfileAbout(db.Model):
  CUSTOMLY I AM SHOWING 
  ----------------------
 '''
-
-
-# for DOCUMENT
 class DocumentView(ModelView):
-    form_overrides = {
-        'document': FileUploadField
-    }
-    form_args = {
-        'document': {
-            'base_path': app.config['UPLOAD_FOLDER']
-        }
-    }
-    column_exclude_list = ['document']
-    form_excluded_columns = ['upl_date','document_filename']  # Excluded items
-
-    def scaffold_form(self):
-        # THIS FUNCTION SHOWING CATEGORY
-        form_class = super(DocumentView, self).scaffold_form()
-        form_class.category_id = SelectField('Category', widget=Select2Widget())
-        return form_class
-
-    def edit_form(self, obj=None):
-        # THIS FUNCTION FOR EDITING AREA CATEGORY SHOWING
-        form = super(DocumentView, self).edit_form(obj)
-        form.category_id.choices = [(c.c_id, c.category) for c in Category.query.all()]
-        return form
-
-    def create_form(self, obj=None):
-        # CATEGORIES VALUES CHOICES FOR INPUt OR CREATE AREA
-        form = super(DocumentView, self).create_form(obj)
-        form.category_id.choices = [(c.c_id, c.category) for c in Category.query.all()]
-        return form
+    form_columns = ['document_filename', 'document', 'category']
+    form_excluded_columns = ['upl_date']  # Exclude upl_date from form input
+    column_editable_list = ['document_filename', 'category']  # Make these fields editable in the list view
+    column_searchable_list = ['document_filename']  # Add search functionality if needed
 
     def on_model_change(self, form, model, is_created):
-        # AFTER FORM SUBMISSTION
-        file = request.files.get('document')
-        if file:
-            # NOTE :  seek is imp on file getting area without this you can store empty file. 
-            
-            file.seek(0)  
-            file_data = file.read()  
-           
-            model.document = file_data 
-            model.document_filename = file.filename  
-            # THIS HELPS ME DELETE TEMPORARY FILES NAME IN UPLOADS/
-            model.delete_file()
+        if is_created:
+            model.upl_date = datetime.utcnow()  #
+
 
 
 

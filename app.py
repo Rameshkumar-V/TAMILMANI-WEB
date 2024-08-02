@@ -24,7 +24,7 @@ from flask_paginate import Pagination, get_page_args
 from werkzeug.security import check_password_hash, generate_password_hash
 
 # DATABASE MODULE HANDLER ( OUR MODULE )
-from database import db, Contact, Document, Category, ContactInfo, PageInformation,DocumentView,ProfileAbout
+from database import db, Contact, Document, Category, ContactInfo, PageInformation,ProfileAbout
 
 # AUTHENTICATION AND LOGIN HANDLER
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user,login_required
@@ -82,7 +82,7 @@ db_admin = Admin(app, name='microblog', template_mode='bootstrap3',index_view=My
 
 # NOTE : add_view used to add db_admin pannel inside model based CRUD operations.
 
-db_admin.add_view(DocumentView(Document, db.session))
+db_admin.add_view(ModelView(Document, db.session))
 db_admin.add_view(ModelView(Category, db.session))
 db_admin.add_view(ModelView(Contact, db.session))
 db_admin.add_view(ModelView(PageInformation, db.session))
@@ -162,6 +162,7 @@ def get_document():
         return jsonify({'error': 'No document ID provided'}), 400
     
     document = Document.query.get(document_id)
+    print('document = 😍',document)
     if not document:
         return jsonify({'error': 'Document not found'}), 404
 
