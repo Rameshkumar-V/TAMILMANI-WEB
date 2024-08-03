@@ -1,4 +1,10 @@
 /* static/css/home.css */
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
 .content-section {
     background-color: #f9f9f9;
     padding: 50px 0;

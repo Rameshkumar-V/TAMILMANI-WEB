@@ -1,4 +1,9 @@
 /* static/css/resources.css */
+
+.rstxt{
+    padding-bottom: 25px;
+}
+
 .resources-container {
     display: flex;
     flex-wrap: wrap;
@@ -51,4 +56,16 @@
     .resource-box {
         width: calc(100% - 40px); /* Adjust width for mobile view */
     }
+    /* .content-container{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin-left: 50px;
+    } */
+     .content-container,.resources-container{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+     }
 }

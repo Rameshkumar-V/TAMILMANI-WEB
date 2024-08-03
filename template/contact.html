@@ -17,12 +17,13 @@
         <table>
 
             {% for contact in contact%}
-            <tr>
+            <tr class="contact-table">
                 <td>{{contact.app_name}}</td>
                 <td><button><a href="{{contact.link}}" target="_blank">Visit</a></button></td>
             </tr>
             {% endfor %}
         </table>
+
     </div>
 </div>
 

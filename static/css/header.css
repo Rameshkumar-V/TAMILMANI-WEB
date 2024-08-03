@@ -7,9 +7,9 @@ body {
 }
 
 header {
-    background-color: #007bff;
     color: white;
     padding: 10px 0;
+    background-color: white;
 }
 
 nav {
@@ -62,7 +62,6 @@ nav {
         position: absolute;
         top: 60px;
         left: 0;
-        background-color: #333;
     }
     
     .nav-links.active {
