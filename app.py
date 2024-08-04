@@ -36,7 +36,8 @@ from flask_admin import AdminIndexView, Admin
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Length
-
+import os
+from database import app as db_app
 app = Flask(__name__, template_folder='template')
 
 # Configuration
@@ -76,7 +77,7 @@ class MyAdminIndexView(AdminIndexView):
     def inaccessible_callback(self, name, **kwargs):
         return redirect(url_for('login'))
 
-
+from database import PageInformationView
 # ADMIN INITIALIZING
 db_admin = Admin(app, name='microblog', template_mode='bootstrap3',index_view=MyAdminIndexView())
 
@@ -85,7 +86,7 @@ db_admin = Admin(app, name='microblog', template_mode='bootstrap3',index_view=My
 db_admin.add_view(ModelView(Document, db.session))
 db_admin.add_view(ModelView(Category, db.session))
 db_admin.add_view(ModelView(Contact, db.session))
-db_admin.add_view(ModelView(PageInformation, db.session))
+db_admin.add_view(PageInformationView(PageInformation, db.session))
 db_admin.add_view(ModelView(ContactInfo, db.session))
 db_admin.add_view(ModelView(ProfileAbout, db.session))
 db_admin.add_view(MyModelView(User, db.session))
@@ -166,8 +167,13 @@ def get_document():
     if not document:
         return jsonify({'error': 'Document not found'}), 404
 
+    file_path = os.path.join(db_app.config['UPLOAD_FOLDER'], document.document_filename)
+
+    if not os.path.exists(file_path):
+        return jsonify({'error': 'File not found'}), 404
+
     return send_file(
-        io.BytesIO(document.document),
+        file_path,
         mimetype='application/pdf',
         as_attachment=True,
         download_name=document.document_filename
