@@ -8,6 +8,7 @@ from flask_admin.form import Select2Widget
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from werkzeug.utils import secure_filename
+from wtforms.fields import FileField
 
 app = Flask(__name__)
 
@@ -15,13 +16,15 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'  # secret key
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tmproject.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = 'uploads'  # Temporary upload folder
-app.config['ALLOWED_EXTENSIONS'] = {'pdf', 'doc', 'docx'}  # Allowed file extensions
+app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['IMAGE_FOLDER']= 'img'
+app.config['ALLOWED_EXTENSIONS'] = {'pdf', 'doc', 'docx','jpg','png'}  # Allowed file extensions
 
 db = SQLAlchemy(app)
 
 # Create upload directory if it doesn't exist
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+os.makedirs(app.config['IMAGE_FOLDER'], exist_ok=True)
 
 def allowed_file(filename):
     """Check if the file extension is allowed."""
@@ -82,24 +85,36 @@ class ProfileAbout(db.Model):
     title = db.Column(db.String(100), nullable=False)
     detail = db.Column(db.Text, nullable=False)
 
+
+
+
+
+
+def save_file_local(file,file_path):
+    if file and file.filename and file_path:
+            if True:
+                filename = secure_filename(file.filename)
+                file_path = file_path
+                try:
+                    file.save(file_path)           
+                except Exception as e:
+                    print(f"Error saving file: {e}")
+            else:
+               print("Invalid file type.")
+    else:
+        print("No file selected.")
+
 # For DOCUMENTS in Flask-Admin
 class DocumentView(ModelView):
-    form_overrides = {
-        'document_filename': FileUploadField
-    }
-    form_args = {
-        'document_filename': {
-            'base_path': app.config['UPLOAD_FOLDER']
-        }
-    }
-    column_exclude_list = ['document_filename']
-    form_excluded_columns = ['upl_date']  # Exclude upl_date from the form
-    # Show document_filename in the view area
-    # column_list = ['id', 'document_filename', 'category', 'upl_date']
+    column_list = ['id', 'document_filename']
+    form_overrides = {'document_filename': FileField}
+    
     column_labels = {
         'document_filename': 'Upload Document  here',
       
     }
+
+    # THIS CUSTOM MODEL FOR CUSTOM FORM FOR CATEGORIES
 
     def scaffold_form(self):
         form_class = super(DocumentView, self).scaffold_form()
@@ -121,34 +136,70 @@ class DocumentView(ModelView):
             # Provide a single choice with a placeholder message
             form.category_id.choices =[]
             
-      
-
         return form
 
     def on_model_change(self, form, model, is_created):
         # Handle file upload and save file locally
         file = request.files.get('document_filename')
         if file and file.filename:
-            if allowed_file(file.filename):
+            file_path= os.path.join('static',app.config['UPLOAD_FOLDER'], file.filename)
+            save_file_local(file,file_path)
+            
+    def on_model_delete(self, model):
+        try:
+      
+            file_path = os.path.join('static',app.config['UPLOAD_FOLDER'], model.document_filename)
+            
+            # Delete the file if it exists
+            if os.path.exists(file_path):
+                os.remove(file_path)
+         
+        except Exception as e:
+            print(f"Error deleting file: {e}")
+
+
+
+
+
+
+
+# CUSTOM PAGE INFORMATION VIEW
+class PageInformationView(ModelView):
+    form_overrides = {
+        'profile_url': FileField,
+        'about_me_url': FileField
+    }
+   
+
+    def on_model_change(self, form, model, is_created):
+        file = request.files.get('profile_url')
+
+        def save(file):
+   
+            if file and file.filename:
+                file_path = os.path.join('static',app.config['UPLOAD_FOLDER'], file.filename)
+                model.profile_url=file.filename
+                model.about_me_url=file.filename
+                save_file_local(file,file_path)
                 filename = secure_filename(file.filename)
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                try:
-                    file.save(file_path)  # Save the file to the uploads folder
-                    model.document_filename = filename  # Store only the filename in the database
-                except Exception as e:
-                    # Handle file save errors
-                    print(f"Error saving file: {e}")
-            else:
-                # Handle invalid file type
-                print("Invalid file type.")
-        else:
-            # Handle missing file
-            print("No file selected.")
+        save(file)
+    def on_model_delete(self, model):
+        try:
+      
+            file_path = os.path.join('static',app.config['UPLOAD_FOLDER'], model.document_filename)
+            
+            # Delete the file if it exists
+            if os.path.exists(file_path):
+                os.remove(file_path)
+         
+        except Exception as e:
+            print(f"Error deleting file: {e}")
+            
+            
+       
+            
 
-# Admin interface setup
-admin = Admin(app, name='MyApp', template_mode='bootstrap3')
-admin.add_view(DocumentView(Document, db.session))
-# Add more views as needed
 
-if __name__ == '__main__':
-    app.run(debug=True)
+
+
+

@@ -77,7 +77,7 @@ class MyAdminIndexView(AdminIndexView):
     def inaccessible_callback(self, name, **kwargs):
         return redirect(url_for('login'))
 
-
+from database import PageInformationView
 # ADMIN INITIALIZING
 db_admin = Admin(app, name='microblog', template_mode='bootstrap3',index_view=MyAdminIndexView())
 
@@ -86,7 +86,7 @@ db_admin = Admin(app, name='microblog', template_mode='bootstrap3',index_view=My
 db_admin.add_view(DocumentView(Document, db.session))
 db_admin.add_view(ModelView(Category, db.session))
 db_admin.add_view(ModelView(Contact, db.session))
-db_admin.add_view(ModelView(PageInformation, db.session))
+db_admin.add_view(PageInformationView(PageInformation, db.session))
 db_admin.add_view(ModelView(ContactInfo, db.session))
 db_admin.add_view(ModelView(ProfileAbout, db.session))
 db_admin.add_view(MyModelView(User, db.session))
