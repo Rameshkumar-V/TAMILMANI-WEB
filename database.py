@@ -61,12 +61,9 @@ class Document(db.Model):
 
     def __repr__(self):
         return f"Document('{self.document_filename}', '{self.upl_date}', '{self.category.category}')"
-<<<<<<< HEAD
    
 
 
-=======
->>>>>>> update/aug
 
 # PAGE INFORMATION MODEL
 class PageInformation(db.Model):
@@ -97,7 +94,7 @@ class ProfileAbout(db.Model):
     detail = db.Column(db.Text, nullable=False)
 
 
-<<<<<<< HEAD
+
 '''
  CUSTOMLY I AM SHOWING 
  ----------------------
@@ -112,7 +109,6 @@ class DocumentView(ModelView):
         if is_created:
             model.upl_date = datetime.utcnow()  #
 
-=======
 
 
 
@@ -183,7 +179,7 @@ class DocumentView(ModelView):
          
         except Exception as e:
             print(f"Error deleting file: {e}")
->>>>>>> update/aug
+
 
 
 
